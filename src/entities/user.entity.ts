@@ -24,8 +24,11 @@ export class User extends Base {
   @Column({ default: USER_ROLE.BASIC })
   public role: USER_ROLE
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'jsonb', default: new Date(Date.now()) })
   public lastActivity: string
+
+  @Column()
+  public authzUserId: string
 
   @TreeParent({ onDelete: 'SET NULL' })
   public parent: User
