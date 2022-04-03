@@ -8,8 +8,8 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  saveUserIfAuthenticated(@Req() req: Request): Promise<string> {
-    return this.appService.saveUserIfAuthenticated(req)
+  getUserState(@Req() req: Request): Promise<string> {
+    return this.appService.getUserState(req)
   }
 
   @Get('test')

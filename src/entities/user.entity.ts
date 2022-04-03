@@ -25,7 +25,7 @@ export class User extends Base {
   public role: USER_ROLE
 
   @Column({ type: 'jsonb', default: new Date(Date.now()) })
-  public lastActivity: string
+  public lastActivity: Date
 
   @Column()
   public authzUserId: string

@@ -24,6 +24,6 @@ import { Question, User } from './entities'
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AtMiddleware).forRoutes('/test')
+    consumer.apply(AtMiddleware).forRoutes('/test', '/profile')
   }
 }

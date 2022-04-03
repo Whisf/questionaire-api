@@ -12,28 +12,6 @@ export class QuestionController {
     return this.questionService.create(createQuestionDto)
   }
 
-  // @Get('/all')
-  // @UseGuards(AuthGuard('jwt'))
-  // async findAll(@Request() req: express.Request) {
-  //   const authZero = new ManagementClient({
-  //     domain: 'dev-khy838sb.us.auth0.com',
-  //     clientId: 'q1xEjRGpj2LOByVD7Vk3NWd5KQfEzOls',
-  //     clientSecret:
-  //       'X-p-5quB09v1lXFyeK_Ir_vKLE9wcez7ZQjB46tbKeVMAM2gGOAyUFYSJnmW8Bij',
-  //     scope: 'read:users update:users',
-  //   });
-
-  //   const res = await authZero
-  //     .getUser({ id: req.user })
-  //     .then((user: User) => {
-  //       return user;
-  //     })
-  //     .catch((err) => {
-  //       return err;
-  //     });
-  //   return this.questionService.findAll();
-  // }
-
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.questionService.findOne(+id)
