@@ -22,7 +22,7 @@ export class AuthenticationGuard implements CanActivate {
   }
 
   async validateAndBindUserToRequest(req: Request): Promise<void> {
-    const accessToken = req.headers['authorization']
+    const accessToken = req.headers['authorization'] || req.oidc.accessToken.access_token
 
     const userData = JSON.parse(Buffer.from(accessToken.split('.')[1], 'base64').toString('binary'))
     const { sub: authzUserId } = userData
