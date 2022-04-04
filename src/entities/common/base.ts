@@ -1,12 +1,12 @@
-import { Column, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
 
 export class Base {
   @PrimaryGeneratedColumn('uuid')
   public id: string
 
-  @Column({ type: 'timestamptz' })
+  @CreateDateColumn({ type: 'timestamptz' })
   public createdAt: Date
 
-  @Column({ type: 'timestamptz' })
+  @UpdateDateColumn({ type: 'timestamptz' })
   public updatedAt: Date
 }
