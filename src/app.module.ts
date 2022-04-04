@@ -24,6 +24,6 @@ import { AuthzMiddleware } from './middleware'
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthzMiddleware).exclude('/login', '/logout').forRoutes('*')
+    consumer.apply(AuthzMiddleware).forRoutes('/login')
   }
 }

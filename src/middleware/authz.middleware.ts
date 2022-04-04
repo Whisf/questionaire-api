@@ -11,7 +11,7 @@ export class AuthzMiddleware implements NestMiddleware {
     const { sub: authzUserId, email } = req.oidc.user
     return this.connection.transaction(async (manager) => {
       const existingUser = await manager.findOne(User, { email })
-      await manager.save(User, { id: existingUser.id, authzUserId, email, lastActivity: new Date(Date.now()) } as User)
+      await manager.save(User, { id: existingUser?.id, authzUserId, email, lastActivity: new Date(Date.now()) } as User)
     })
   }
 

@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import * as dotenv from 'dotenv'
 import { Logger, ValidationPipe } from '@nestjs/common'
-import { auth } from 'express-openid-connect'
+import { auth, ConfigParams } from 'express-openid-connect'
 import * as morgan from 'morgan'
 
 dotenv.config()
@@ -21,7 +21,7 @@ const config = {
     audience: 'http://localhost:3000',
     scope: 'openid profile email',
   },
-}
+} as ConfigParams
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
