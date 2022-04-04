@@ -4,7 +4,7 @@ module.exports = {
   port: process.env.DB_PORT || 5432,
   username: process.env.DB_USERNAME || 'postgres',
   password: process.env.DB_PASSWORD || 'postgres',
-  database: process.env.DATABASE_BBDD || 'questionareDB',
+  database: process.env.DB_NAME || 'questionareDB',
   synchronize: false,
   logging: true,
   entities: [__dirname + '/dist/**/*.entity.js'],
