@@ -34,6 +34,6 @@ export class AppModule implements NestModule {
     }
     consumer.apply(AuthzMiddleware).forRoutes('/login')
     consumer.apply(SaveUserMiddleware).forRoutes('/')
-    consumer.apply(auth(config)).exclude('/', '/login', '/logout', '/access-token').forRoutes('*')
+    consumer.apply(auth(config)).exclude('/', '/login', '/logout', '/access-token', '/profile').forRoutes('*')
   }
 }
