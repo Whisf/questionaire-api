@@ -33,7 +33,7 @@ async function bootstrap() {
 
   app.use(morgan('combined'))
 
-  await app.listen(3000)
+  await app.listen(process.env.PORT)
 }
 
 bootstrap().then(() => Logger.log(`Server is listening on port ${process.env.PORT}`))
