@@ -8,9 +8,7 @@ import { QuestionModule } from './question'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { Question, User } from './entities'
-import { AuthzMiddleware, SaveUserMiddleware } from './middleware'
-
-import { auth } from 'express-oauth2-jwt-bearer'
+import { AuthzMiddleware } from './middleware'
 
 @Module({
   imports: [
@@ -26,14 +24,6 @@ import { auth } from 'express-oauth2-jwt-bearer'
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    const config = {
-      audience: process.env.AUTHZ_BASE_URL,
-      issuerBaseURL: process.env.AUTHZ_ISSUER_URL,
-      issuer: process.env.AUTHZ_ISSUER_URL,
-      jwksUri: `${process.env.AUTHZ_ISSUER_URL}/.well-known/jwks.json`,
-    }
     consumer.apply(AuthzMiddleware).forRoutes('/login')
-    consumer.apply(SaveUserMiddleware).forRoutes('/')
-    consumer.apply(auth(config)).exclude('/', '/login', '/logout', '/access-token').forRoutes('*')
   }
 }

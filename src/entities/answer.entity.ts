@@ -12,6 +12,9 @@ export class Answer extends Base {
   @Column()
   public description: string
 
+  @Column()
+  public isTrue: boolean
+
   @OneToMany(() => UserQuestionAnswer, (userQuestionAnswer: UserQuestionAnswer) => userQuestionAnswer.question)
   public userQuestionAnswers: UserQuestionAnswer[]
 

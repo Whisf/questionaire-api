@@ -18,7 +18,7 @@ const config = {
   idpLogout: true,
   authorizationParams: {
     response_type: 'code',
-    audience: process.env.AUTHZ_BASE_URL,
+    audience: 'http://localhost:3000',
     scope: 'openid profile email',
   },
 } as ConfigParams
