@@ -12,14 +12,9 @@ export class AppController {
     return this.appService.getUserState(req)
   }
 
-  @Get('test')
+  @Get('access-token')
   async test(@Req() req: Request) {
     return req.oidc?.accessToken?.access_token || ''
-  }
-
-  @Get('admin')
-  getAdmin() {
-    return '<a href="/admin">Admin Section</a>'
   }
 
   @Get('profile')

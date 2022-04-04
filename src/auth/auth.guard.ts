@@ -1,7 +1,4 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common'
-import { expressJwtSecret } from 'jwks-rsa'
-import { promisify } from 'util'
-import * as jwt from 'express-jwt'
 import { Request } from 'express'
 import { Connection } from 'typeorm'
 import { User } from 'src/entities'
