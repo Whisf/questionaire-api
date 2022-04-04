@@ -7,7 +7,7 @@ import { AuthenticationGuard } from './auth.guard'
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Get('/cat')
+  @Get('cat')
   @UseGuards(AuthenticationGuard)
   async hello() {
     return 'Hello World'
