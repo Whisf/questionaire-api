@@ -7,8 +7,8 @@ import { AuthModule } from './auth'
 import { QuestionModule } from './question'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
-import { AtMiddleware } from './at.middleware'
 import { Question, User } from './entities'
+import { AuthzMiddleware } from './middleware'
 
 @Module({
   imports: [
@@ -24,6 +24,6 @@ import { Question, User } from './entities'
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AtMiddleware).forRoutes('/test', '/profile')
+    consumer.apply(AuthzMiddleware).exclude('/login', '/logout').forRoutes('*')
   }
 }
