@@ -5,7 +5,7 @@ import { CreateQuestionDto } from './create-question.dto'
 
 export class UpdateQuestionDto extends PartialType(CreateQuestionDto) {
   @IsString()
-  description: string
+  description?: string
 
   @IsString()
   category?: string
