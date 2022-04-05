@@ -48,24 +48,6 @@ export class QuestionService {
     }
   }
 
-  async getCategory(title: string): Promise<QuestionCategory[]> {
-    try {
-      const data = await this.connection.manager
-        .createQueryBuilder(QuestionCategory, 'questionCategory')
-        .leftJoinAndSelect('questionCategory.questions', 'questions')
-        .where('questionCategory.title = :questionCategoryTitle', { questionCategoryTitle: title })
-        .getMany()
-
-      return data
-    } catch (error) {
-      throw new BadRequestException(error)
-    }
-  }
-
-  async getAllCategories() {
-    return this.connection.manager.find(QuestionCategory)
-  }
-
   async findOne(id: string) {
     try {
       const question = await this.connection.manager
@@ -136,8 +118,6 @@ export class QuestionService {
         title: updateQuestionDto.category,
       })
     }
-
-    console.log(category)
 
     try {
       return await this.connection.manager
