@@ -1,7 +1,4 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common'
-import { expressJwtSecret } from 'jwks-rsa'
-import { promisify } from 'util'
-import * as jwt from 'express-jwt'
 import { Request } from 'express'
 import { Connection } from 'typeorm'
 import { User } from 'src/entities'
@@ -27,7 +24,7 @@ export class AuthenticationGuard implements CanActivate {
     const userData = JSON.parse(Buffer.from(accessToken.split('.')[1], 'base64').toString('binary'))
     const { sub: authzUserId } = userData
 
-    const user = await this.connection.manager.find(User, { where: { authzUserId } })
+    const user = await this.connection.manager.findOne(User, { where: { authzUserId } })
 
     if (!user) {
       throw new UnauthorizedException('No user found')
