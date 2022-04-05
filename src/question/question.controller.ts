@@ -15,7 +15,12 @@ export class QuestionController {
 
   @Get('/category')
   findByCategory(@Query('title') title: string) {
-    return this.questionService.findAll(title)
+    return this.questionService.getCategory(title)
+  }
+
+  @Get('/categories')
+  getAllCategory() {
+    return this.questionService.getAllCategories()
   }
 
   @Get('/:id')
