@@ -9,6 +9,9 @@ export class Question extends Base {
   @Column()
   public description: string
 
+  @Column()
+  public questionCategoryId: string
+
   @OneToMany(() => Answer, (answer: Answer) => answer.question)
   public answers: Answer[]
 

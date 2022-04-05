@@ -4,60 +4,121 @@ import { Answer } from 'src/entities/answer.entity'
 import { Connection } from 'typeorm'
 import { CreateQuestionDto } from './dto/create-question.dto'
 import { UpdateQuestionDto } from './dto/update-question.dto'
-
 @Injectable()
 export class QuestionService {
   constructor(private connection: Connection) {}
 
   async create(createQuestionDto: CreateQuestionDto) {
-    const category = await this.connection.manager
-      .createQueryBuilder(QuestionCategory, 'question_category')
-      .where('question_category.title = :title', { title: createQuestionDto.category })
-      .getOne()
-    if (!category) {
-      await this.connection.manager.insert(QuestionCategory, {
-        title: createQuestionDto.category,
-      })
+    try {
+      const category = await this.connection.manager
+        .createQueryBuilder(QuestionCategory, 'question_category')
+        .where('question_category.title = :title', { title: createQuestionDto.category })
+        .getOne()
+      if (!category) {
+        const newCategory = await this.connection.manager.save(QuestionCategory, {
+          title: createQuestionDto.category,
+        })
+
+        const question = await this.connection.manager.save(Question, {
+          description: createQuestionDto.question,
+          questionCategory: category || newCategory,
+        })
+
+        const answers = createQuestionDto.answers
+        answers.map(async (ans) => {
+          return await this.connection.manager.save(Answer, {
+            description: ans.description,
+            isTrue: ans.isTrue,
+            question: question,
+          })
+        })
+      }
+    } catch (error) {
+      console.log(error)
     }
-
-    const question = await this.connection.manager.save(Question, {
-      description: createQuestionDto.question,
-      questionCategory: category,
-    })
-
-    const answers = createQuestionDto.answers
-
-    answers.map(async (ans) => {
-      console.log(ans)
-
-      return await this.connection.manager.save(Answer, {
-        description: ans.description,
-        isTrue: ans.isTrue,
-        question: question,
-      })
-    })
   }
 
-  findAll(category: string) {
-    return this.connection.manager.createQueryBuilder(Question, 'question').getMany()
+  async findAll(category: string) {
+    try {
+      return await this.connection.manager
+        .createQueryBuilder(Question, 'q')
+        .innerJoinAndSelect(QuestionCategory, 'qc', 'q.questionCategoryId = qc.id')
+        .where('qc.title = :category', { category: category })
+        .getMany()
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   async findOne(id: string) {
-    return await this.connection.manager.createQueryBuilder(Question, 'question').where({ id: id }).getOne()
+    try {
+      const question = await this.connection.manager
+        .createQueryBuilder(Question, 'question')
+        .where('question.id = :id', { id: id })
+        .getOne()
+
+      const answer = await this.connection.manager
+        .createQueryBuilder(Answer, 'answer')
+        .select('answer.description')
+        .where('answer.questionId = :id', { id: id })
+        .getMany()
+
+      const listAnswers = answer.map((e) => {
+        return e.description
+      })
+
+      const category = await this.connection.manager
+        .createQueryBuilder(QuestionCategory, 'question_category')
+        .select('question_category.title')
+        .where('question_category.id = :id', { id: question.questionCategoryId })
+        .getOne()
+
+      console.log(category)
+      const data = {
+        category: category.title,
+        question: question.description,
+        answers: listAnswers,
+      }
+
+      return data
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   async update(id: string, updateQuestionDto: UpdateQuestionDto) {
-    return await this.connection.manager
-      .createQueryBuilder()
-      .update(Question)
-      .set({ description: updateQuestionDto.description })
-      .where('id = :id', { id: id })
-      .execute()
+    if (updateQuestionDto.category) {
+      const category = await this.connection.manager
+        .createQueryBuilder(QuestionCategory, 'question_category')
+        .where('question_category.title = :title', { title: updateQuestionDto.category })
+        .getOne()
+
+      if (!category) {
+        const newCategory = await this.connection.manager.save(QuestionCategory, {
+          title: updateQuestionDto.category,
+        })
+
+        try {
+          return await this.connection.manager
+            .createQueryBuilder()
+            .update(Question)
+            .set({ description: updateQuestionDto.description, questionCategory: category || newCategory })
+            .where('id = :id', { id: id })
+            .execute()
+        } catch (error) {
+          console.log(error)
+        }
+      }
+      console.log(category)
+    }
   }
 
   async remove(id: string) {
-    console.log(id)
-    return await this.connection.manager.delete(Question, id)
+    try {
+      return await this.connection.manager.delete(Question, id)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   async test() {
