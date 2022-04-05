@@ -1,3 +1,4 @@
+import { IsString } from 'class-validator'
 import { Column, Entity, OneToMany } from 'typeorm'
 import { Base } from './common'
 import { Question } from './question.entity'
