@@ -1,10 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common'
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common'
 import { QuestionService } from './question.service'
 import { CreateQuestionDto } from './dto/create-question.dto'
 import { UpdateQuestionDto } from './dto/update-question.dto'
 import { CategoryService } from 'src/category/category.service'
+import { AuthenticationAdminGuard } from 'src/auth'
 
 @Controller('questions')
+@UseGuards(AuthenticationAdminGuard)
 export class QuestionController {
   constructor(private readonly questionService: QuestionService, private readonly categoryService: CategoryService) {}
 
