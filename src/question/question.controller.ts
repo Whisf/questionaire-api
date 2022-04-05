@@ -35,7 +35,6 @@ export class QuestionController {
 
   @Delete('/:id')
   remove(@Param('id', ParseUUIDPipe) id: string) {
-    console.log(id)
     return this.questionService.remove(id)
   }
 }

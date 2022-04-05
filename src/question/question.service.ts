@@ -101,30 +101,6 @@ export class QuestionService {
   async update(id: string, updateQuestionDto: UpdateQuestionDto) {
     const question = await this.connection.manager.createQueryBuilder(Question, 'question').where({ id: id }).getOne()
 
-    if (updateQuestionDto.category || updateQuestionDto.description) {
-      let category = await this.connection.manager
-        .createQueryBuilder(QuestionCategory, 'question_category')
-        .where('question_category.title = :title', { title: updateQuestionDto.category })
-        .getOne()
-
-      if (!category) {
-        category = await this.connection.manager.save(QuestionCategory, {
-          title: updateQuestionDto.category,
-        })
-      }
-
-      try {
-        return await this.connection.manager
-          .createQueryBuilder()
-          .update(Question)
-          .set({ description: updateQuestionDto.description || question.description, questionCategory: category })
-          .where('id = :id', { id: id })
-          .execute()
-      } catch (error) {
-        throw new BadRequestException(error)
-      }
-    }
-
     if (updateQuestionDto.answers) {
       await this.connection.manager
         .createQueryBuilder(Answer, 'answer')
@@ -144,10 +120,34 @@ export class QuestionService {
       return {
         question: question,
         answers: data.map((e) => {
-          const { question , ...returndata } = e
+          const { question, ...returndata } = e
           return returndata
         }),
       }
+    }
+
+    let category = await this.connection.manager
+      .createQueryBuilder(QuestionCategory, 'question_category')
+      .where('question_category.title = :title', { title: updateQuestionDto.category })
+      .getOne()
+
+    if (!category) {
+      category = await this.connection.manager.save(QuestionCategory, {
+        title: updateQuestionDto.category,
+      })
+    }
+
+    console.log(category)
+
+    try {
+      return await this.connection.manager
+        .createQueryBuilder()
+        .update(Question)
+        .set({ description: updateQuestionDto.description || question.description, questionCategory: category })
+        .where('id = :id', { id: id })
+        .execute()
+    } catch (error) {
+      throw new BadRequestException(error)
     }
   }
 
