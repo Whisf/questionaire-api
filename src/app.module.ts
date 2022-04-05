@@ -11,6 +11,7 @@ import { Question, User } from './entities'
 import { AuthzMiddleware, SaveUserMiddleware } from './middleware'
 
 import { auth } from 'express-oauth2-jwt-bearer'
+import { AnswerModule } from './answer'
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { auth } from 'express-oauth2-jwt-bearer'
     UserModule,
     AuthModule,
     QuestionModule,
+    AnswerModule,
     DatabaseModule,
     TypeOrmModule.forFeature([User, Question]),
   ],
