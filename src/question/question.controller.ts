@@ -13,16 +13,6 @@ export class QuestionController {
     return this.questionService.createQuestion(createQuestionDto)
   }
 
-  @Get('/category')
-  findByCategory(@Query('title') title: string) {
-    return this.categoryService.getCategory(title)
-  }
-
-  @Get('/categories')
-  getAllCategory() {
-    return this.categoryService.getAllCategories()
-  }
-
   @Get('/:id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.questionService.findOne(id)
