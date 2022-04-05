@@ -2,11 +2,11 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Req, ParseUUIDPipe, 
 import { QuestionService } from './question.service'
 import { CreateQuestionDto } from './dto/create-question.dto'
 import { UpdateQuestionDto } from './dto/update-question.dto'
-import { Request } from 'express'
+import { CategoryService } from 'src/category/category.service'
 
 @Controller('questions')
 export class QuestionController {
-  constructor(private readonly questionService: QuestionService) {}
+  constructor(private readonly questionService: QuestionService, private readonly categoryService: CategoryService) {}
 
   @Post('/create')
   create(@Body() createQuestionDto: CreateQuestionDto) {
@@ -15,16 +15,16 @@ export class QuestionController {
 
   @Get('/category')
   findByCategory(@Query('title') title: string) {
-    return this.questionService.getCategory(title)
+    return this.categoryService.getCategory(title)
   }
 
   @Get('/categories')
   getAllCategory() {
-    return this.questionService.getAllCategories()
+    return this.categoryService.getAllCategories()
   }
 
   @Get('/:id')
-  findOne(@Param('id', ParseUUIDPipe) id: string, @Req() req: Request) {
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.questionService.findOne(id)
   }
 

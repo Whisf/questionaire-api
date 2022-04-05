@@ -12,6 +12,7 @@ import { AuthzMiddleware, SaveUserMiddleware } from './middleware'
 
 import { auth } from 'express-oauth2-jwt-bearer'
 import { AnswerModule } from './answer'
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [
@@ -21,7 +22,9 @@ import { AnswerModule } from './answer'
     QuestionModule,
     AnswerModule,
     DatabaseModule,
+    CategoryModule,
     TypeOrmModule.forFeature([User, Question]),
+    CategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
