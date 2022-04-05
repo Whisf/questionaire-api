@@ -48,21 +48,22 @@ export class QuestionService {
     }
   }
 
-  async findAll(title: string): Promise<Omit<Question, 'questionCategory' | 'questionCategoryId'>[]> {
+  async getCategory(title: string): Promise<QuestionCategory[]> {
     try {
       const data = await this.connection.manager
-        .createQueryBuilder(Question, 'question')
-        .leftJoinAndSelect('question.questionCategory', 'questionCategory')
-        .andWhere('questionCategory.title = :questionCategoryTitle', { questionCategoryTitle: title })
+        .createQueryBuilder(QuestionCategory, 'questionCategory')
+        .leftJoinAndSelect('questionCategory.questions', 'questions')
+        .where('questionCategory.title = :questionCategoryTitle', { questionCategoryTitle: title })
         .getMany()
 
-      return data.map((d) => {
-        const { questionCategory, questionCategoryId, ...returnData } = d
-        return returnData
-      })
+      return data
     } catch (error) {
       console.log(error)
     }
+  }
+
+  async getAllCategories() {
+    return this.connection.manager.find(QuestionCategory)
   }
 
   async findOne(id: string) {
