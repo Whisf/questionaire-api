@@ -1,5 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types'
-import { IsString } from 'class-validator'
+import { IsArray, IsString } from 'class-validator'
+import { Answer } from 'src/entities/answer.entity'
 import { CreateQuestionDto } from './create-question.dto'
 
 export class UpdateQuestionDto extends PartialType(CreateQuestionDto) {
@@ -8,4 +9,7 @@ export class UpdateQuestionDto extends PartialType(CreateQuestionDto) {
 
   @IsString()
   category?: string
+
+  @IsArray()
+  answers?: Answer[]
 }

@@ -13,6 +13,12 @@ export class QuestionController {
     return this.questionService.create(createQuestionDto)
   }
 
+  @Get('/category/:category')
+  findByCategory(@Param('category') category: string) {
+    console.log(category)
+    return this.questionService.findAll(category)
+  }
+
   @Get('/findOne/:id')
   findOne(@Param('id', ParseUUIDPipe) id: string, @Req() req: Request) {
     return this.questionService.findOne(id)

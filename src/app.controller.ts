@@ -12,7 +12,7 @@ export class AppController {
     return this.appService.getUserState(req)
   }
 
-  @Get('test')
+  @Get('access-token')
   async test(@Req() req: Request) {
     return req.oidc?.accessToken?.access_token || ''
   }
