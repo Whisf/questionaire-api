@@ -4,12 +4,12 @@ import { CreateQuestionDto } from './dto/create-question.dto'
 import { UpdateQuestionDto } from './dto/update-question.dto'
 import { Request } from 'express'
 
-@Controller('question')
+@Controller('questions')
 export class QuestionController {
   constructor(private readonly questionService: QuestionService) {}
 
   @Post('/create')
-  create(@Body() createQuestionDto: CreateQuestionDto, @Req() req: Request) {
+  create(@Body() createQuestionDto: CreateQuestionDto) {
     return this.questionService.createQuestion(createQuestionDto)
   }
 
@@ -28,12 +28,12 @@ export class QuestionController {
     return this.questionService.findOne(id)
   }
 
-  @Patch('/edit/:id')
+  @Patch('/:id')
   update(@Param('id', ParseUUIDPipe) id: string, @Body() updateQuestionDto: UpdateQuestionDto) {
     return this.questionService.update(id, updateQuestionDto)
   }
 
-  @Delete('/delete/:id')
+  @Delete('/:id')
   remove(@Param('id', ParseUUIDPipe) id: string) {
     console.log(id)
     return this.questionService.remove(id)

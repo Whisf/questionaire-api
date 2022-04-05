@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import { Question, QuestionCategory, User } from 'src/entities'
 import { Answer } from 'src/entities/answer.entity'
 import { Connection } from 'typeorm'
@@ -44,7 +44,7 @@ export class QuestionService {
         }),
       }
     } catch (error) {
-      console.log(error)
+      throw new BadRequestException(error)
     }
   }
 
@@ -58,7 +58,7 @@ export class QuestionService {
 
       return data
     } catch (error) {
-      console.log(error)
+      throw new BadRequestException(error)
     }
   }
 
@@ -94,7 +94,7 @@ export class QuestionService {
         answers: listAnswers,
       }
     } catch (error) {
-      console.log(error)
+      throw new BadRequestException(error)
     }
   }
 
@@ -117,11 +117,11 @@ export class QuestionService {
         return await this.connection.manager
           .createQueryBuilder()
           .update(Question)
-          .set({ description: updateQuestionDto.description, questionCategory: category })
+          .set({ description: updateQuestionDto.description || question.description, questionCategory: category })
           .where('id = :id', { id: id })
           .execute()
       } catch (error) {
-        console.log(error)
+        throw new BadRequestException(error)
       }
     }
 
@@ -132,13 +132,22 @@ export class QuestionService {
         .where('questionId = :id', { id: id })
         .execute()
 
-      updateQuestionDto.answers.map(async (ans) => {
-        return await this.connection.manager.save(Answer, {
+      const test = updateQuestionDto.answers.map(async (ans) => {
+        return this.connection.manager.save(Answer, {
           description: ans.description,
           isTrue: ans.isTrue,
           question: question,
         })
       })
+
+      const data = await Promise.all(test)
+      return {
+        question: question,
+        answers: data.map((e) => {
+          const { question , ...returndata } = e
+          return returndata
+        }),
+      }
     }
   }
 
@@ -146,7 +155,7 @@ export class QuestionService {
     try {
       return await this.connection.manager.delete(Question, id)
     } catch (error) {
-      console.log(error)
+      throw new BadRequestException(error)
     }
   }
 
@@ -155,9 +164,5 @@ export class QuestionService {
       .createQueryBuilder(Answer, 'answer')
       .where('answer.questionId = :id', { id: id })
       .getMany()
-  }
-
-  async test() {
-    console.log(await this.connection.manager.createQueryBuilder(User, 'user').getMany())
   }
 }

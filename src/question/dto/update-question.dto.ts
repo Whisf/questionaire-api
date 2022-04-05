@@ -4,7 +4,7 @@ import { Answer } from 'src/entities/answer.entity'
 import { CreateQuestionDto } from './create-question.dto'
 
 export class UpdateQuestionDto extends PartialType(CreateQuestionDto) {
-  @IsString()
+  // @IsString()
   description?: string
 
   @IsString()
