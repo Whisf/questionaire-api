@@ -10,29 +10,29 @@ export class QuestionService {
 
   async create(createQuestionDto: CreateQuestionDto) {
     try {
-      const category = await this.connection.manager
+      let category = await this.connection.manager
         .createQueryBuilder(QuestionCategory, 'question_category')
         .where('question_category.title = :title', { title: createQuestionDto.category })
         .getOne()
       if (!category) {
-        const newCategory = await this.connection.manager.save(QuestionCategory, {
+        category = await this.connection.manager.save(QuestionCategory, {
           title: createQuestionDto.category,
         })
-
-        const question = await this.connection.manager.save(Question, {
-          description: createQuestionDto.question,
-          questionCategory: category || newCategory,
-        })
-
-        const answers = createQuestionDto.answers
-        answers.map(async (ans) => {
-          return await this.connection.manager.save(Answer, {
-            description: ans.description,
-            isTrue: ans.isTrue,
-            question: question,
-          })
-        })
       }
+      const question = await this.connection.manager.save(Question, {
+        description: createQuestionDto.question,
+        questionCategory: category,
+      })
+      const answers = createQuestionDto.answers
+      answers.map(async (ans) => {
+        return await this.connection.manager.save(Answer, {
+          description: ans.description,
+          isTrue: ans.isTrue,
+          question: question,
+        })
+      })
+
+      return question
     } catch (error) {
       console.log(error)
     }
@@ -73,13 +73,11 @@ export class QuestionService {
         .where('question_category.id = :id', { id: question.questionCategoryId })
         .getOne()
 
-      console.log(category)
       const data = {
         category: category.title,
         question: question.description,
         answers: listAnswers,
       }
-
       return data
     } catch (error) {
       console.log(error)
@@ -87,29 +85,46 @@ export class QuestionService {
   }
 
   async update(id: string, updateQuestionDto: UpdateQuestionDto) {
-    if (updateQuestionDto.category) {
-      const category = await this.connection.manager
+    const question = await this.connection.manager.createQueryBuilder(Question, 'question').where({ id: id }).getOne()
+
+    if (updateQuestionDto.category || updateQuestionDto.description) {
+      let category = await this.connection.manager
         .createQueryBuilder(QuestionCategory, 'question_category')
         .where('question_category.title = :title', { title: updateQuestionDto.category })
         .getOne()
 
       if (!category) {
-        const newCategory = await this.connection.manager.save(QuestionCategory, {
+        category = await this.connection.manager.save(QuestionCategory, {
           title: updateQuestionDto.category,
         })
-
-        try {
-          return await this.connection.manager
-            .createQueryBuilder()
-            .update(Question)
-            .set({ description: updateQuestionDto.description, questionCategory: category || newCategory })
-            .where('id = :id', { id: id })
-            .execute()
-        } catch (error) {
-          console.log(error)
-        }
       }
-      console.log(category)
+
+      try {
+        return await this.connection.manager
+          .createQueryBuilder()
+          .update(Question)
+          .set({ description: updateQuestionDto.description, questionCategory: category })
+          .where('id = :id', { id: id })
+          .execute()
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    if (updateQuestionDto.answers) {
+      await this.connection.manager
+        .createQueryBuilder(Answer, 'answer')
+        .delete()
+        .where('questionId = :id', { id: id })
+        .execute()
+
+      updateQuestionDto.answers.map(async (ans) => {
+        return await this.connection.manager.save(Answer, {
+          description: ans.description,
+          isTrue: ans.isTrue,
+          question: question,
+        })
+      })
     }
   }
 
@@ -119,6 +134,13 @@ export class QuestionService {
     } catch (error) {
       console.log(error)
     }
+  }
+
+  private async getAnswers(id: string) {
+    return this.connection.manager
+      .createQueryBuilder(Answer, 'answer')
+      .where('answer.questionId = :id', { id: id })
+      .getMany()
   }
 
   async test() {
