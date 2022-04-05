@@ -8,7 +8,7 @@ import { UpdateQuestionDto } from './dto/update-question.dto'
 export class QuestionService {
   constructor(private connection: Connection) {}
 
-  async create(createQuestionDto: CreateQuestionDto) {
+  async createQuestion(createQuestionDto: CreateQuestionDto): Promise<any> {
     try {
       let category = await this.connection.manager
         .createQueryBuilder(QuestionCategory, 'question_category')
@@ -19,32 +19,47 @@ export class QuestionService {
           title: createQuestionDto.category,
         })
       }
+
       const question = await this.connection.manager.save(Question, {
         description: createQuestionDto.question,
         questionCategory: category,
       })
+
       const answers = createQuestionDto.answers
-      answers.map(async (ans) => {
-        return await this.connection.manager.save(Answer, {
+      const arrPromises = answers.map(async (ans) => {
+        return this.connection.manager.save(Answer, {
           description: ans.description,
           isTrue: ans.isTrue,
-          question: question,
+          question,
         })
       })
 
-      return question
+      const test = await Promise.all(arrPromises)
+
+      return {
+        question: question,
+        answers: test.map((data) => {
+          const { question, ...returnData } = data
+          return returnData
+        }),
+      }
     } catch (error) {
       console.log(error)
     }
   }
 
-  async findAll(category: string) {
+  async findAll(title: string): Promise<Omit<Question, 'questionCategory' | 'questionCategoryId'>[]> {
     try {
-      return await this.connection.manager
-        .createQueryBuilder(Question, 'q')
-        .innerJoinAndSelect(QuestionCategory, 'qc', 'q.questionCategoryId = qc.id')
-        .where('qc.title = :category', { category: category })
+      const data = await this.connection.manager
+        .createQueryBuilder(Question, 'question')
+        .leftJoinAndSelect('question.questionCategory', 'questionCategory')
+        .andWhere('questionCategory.title = :questionCategoryTitle', { questionCategoryTitle: title })
         .getMany()
+
+      return data.map((d) => {
+        const { questionCategory, questionCategoryId, ...returnData } = d
+        return returnData
+      })
     } catch (error) {
       console.log(error)
     }
@@ -59,12 +74,11 @@ export class QuestionService {
 
       const answer = await this.connection.manager
         .createQueryBuilder(Answer, 'answer')
-        .select('answer.description')
         .where('answer.questionId = :id', { id: id })
         .getMany()
 
       const listAnswers = answer.map((e) => {
-        return e.description
+        return e
       })
 
       const category = await this.connection.manager
@@ -73,12 +87,11 @@ export class QuestionService {
         .where('question_category.id = :id', { id: question.questionCategoryId })
         .getOne()
 
-      const data = {
+      return {
         category: category.title,
         question: question.description,
         answers: listAnswers,
       }
-      return data
     } catch (error) {
       console.log(error)
     }
