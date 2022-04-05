@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Answer, Question, User, UserQuestionAnswer } from 'src/entities'
+import { Answer, Question, QuestionCategory, User, UserQuestionAnswer } from 'src/entities'
 import { Connection } from 'typeorm'
 import { AnswerDto } from './dtos'
 
@@ -7,7 +7,7 @@ import { AnswerDto } from './dtos'
 export class AnswerService {
   constructor(private connection: Connection) {}
 
-  async getUserAnswerByCategory(user: User, categoryId: string): Promise<Omit<UserQuestionAnswer, 'user'>[]> {
+  async getUserAnswerByCategory(user: User, categoryId: string): Promise<any> {
     const userQuestionAnswers = await this.connection.manager
       .createQueryBuilder(UserQuestionAnswer, 'userQuestionAnswer')
       .leftJoinAndSelect('userQuestionAnswer.user', 'user')
@@ -18,10 +18,19 @@ export class AnswerService {
       .andWhere('user.id = :userId', { userId: user.id })
       .getMany()
 
-    return userQuestionAnswers.map((userQuestionAnswer) => {
-      const { user, ...returnData } = userQuestionAnswer
-      return returnData
+    let result = 0
+    for (const userQuestionAnswer of userQuestionAnswers) {
+      if (userQuestionAnswer?.answer?.isTrue) {
+        result += 1
+      }
+    }
+
+    const dataReturn = userQuestionAnswers.map((userQuestionAnswer) => {
+      const { user, ...rest } = userQuestionAnswer
+      return rest
     })
+
+    return { userQuestionAnswers: dataReturn, result }
   }
 
   async saveAnswerByCategory(
@@ -57,5 +66,16 @@ export class AnswerService {
 
       return Promise.all(arrPromises)
     })
+  }
+
+  async getCategoryUserAnswers(title: string): Promise<QuestionCategory> {
+    return this.connection.manager
+      .createQueryBuilder(QuestionCategory, 'questionCategory')
+      .leftJoinAndSelect('questionCategory.questions', 'questions')
+      .leftJoinAndSelect('questions.userQuestionAnswers', 'userQuestionAnswers')
+      .leftJoinAndSelect('userQuestionAnswers.user', 'user')
+      .leftJoinAndSelect('userQuestionAnswers.answer', 'answer')
+      .where('questionCategory.title = :title', { title })
+      .getOne()
   }
 }
