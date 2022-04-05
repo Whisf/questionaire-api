@@ -3,6 +3,7 @@ import { AppModule } from './app.module'
 import * as dotenv from 'dotenv'
 import { Logger, ValidationPipe } from '@nestjs/common'
 import { auth, ConfigParams } from 'express-openid-connect'
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import * as morgan from 'morgan'
 
 dotenv.config()
@@ -23,6 +24,13 @@ const config = {
   },
 } as ConfigParams
 
+const swaggerConfig = new DocumentBuilder()
+  .setTitle('Questionaire-API')
+  .setDescription('')
+  .setVersion('1.0')
+  .addTag('test')
+  .build()
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
 
@@ -32,6 +40,10 @@ async function bootstrap() {
   app.use(auth(config))
 
   app.use(morgan('combined'))
+
+  const document = SwaggerModule.createDocument(app, swaggerConfig)
+
+  SwaggerModule.setup('api', app, document)
 
   await app.listen(process.env.PORT)
 }
