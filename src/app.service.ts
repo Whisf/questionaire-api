@@ -5,7 +5,7 @@ import { User } from './entities'
 
 @Injectable()
 export class AppService {
-  async getUserState(req: Request): Promise<User | undefined> {
-    return req.oidc.isAuthenticated() ? (req.user as User) : undefined
+  async getUserState(req: Request): Promise<User | string> {
+    return req.oidc.isAuthenticated() ? (req.user as User) : '<h1> Already logout </ h1>'
   }
 }
