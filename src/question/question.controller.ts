@@ -17,7 +17,7 @@ export class QuestionController {
 
   @Get('/:id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.questionService.findOne(id)
+    return this.questionService.findQuestionById(id)
   }
 
   @Patch('/:id')

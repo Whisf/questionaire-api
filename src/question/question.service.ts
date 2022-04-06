@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
-import { Question, QuestionCategory, User } from 'src/entities'
+import { Question, QuestionCategory } from 'src/entities'
 import { Answer } from 'src/entities/answer.entity'
 import { Connection } from 'typeorm'
 import { CreateQuestionDto } from './dto/create-question.dto'
@@ -9,77 +9,40 @@ export class QuestionService {
   constructor(private connection: Connection) {}
 
   async createQuestion(createQuestionDto: CreateQuestionDto): Promise<any> {
-    try {
-      let category = await this.connection.manager
-        .createQueryBuilder(QuestionCategory, 'question_category')
-        .where('question_category.title = :title', { title: createQuestionDto.category })
-        .getOne()
-      if (!category) {
-        category = await this.connection.manager.save(QuestionCategory, {
-          title: createQuestionDto.category,
-        })
+    return this.connection.transaction(async (manager) => {
+      const { question, category, answers } = createQuestionDto
+      const categoryExisting = await manager.findOne(QuestionCategory, { where: { title: category } })
+
+      if (!categoryExisting) {
+        throw new BadRequestException(`Not found ${category} category`)
       }
 
-      const question = await this.connection.manager.save(Question, {
-        description: createQuestionDto.question,
-        questionCategory: category,
+      const questionCreated = await manager.save(Question, {
+        description: question,
+        questionCategory: { id: categoryExisting.id },
+      } as Question)
+
+      const arrAnswers = answers.map(async (answer) => {
+        return await manager.save(Answer, { ...answer, question: { id: questionCreated.id } } as Answer)
       })
 
-      const answers = createQuestionDto.answers
-      const arrPromises = answers.map(async (ans) => {
-        return this.connection.manager.save(Answer, {
-          description: ans.description,
-          isTrue: ans.isTrue,
-          question,
-        })
-      })
-
-      const test = await Promise.all(arrPromises)
+      const listAnswers = await Promise.all(arrAnswers)
 
       return {
-        question: question,
-        answers: test.map((data) => {
-          const { question, ...returnData } = data
-          return returnData
-        }),
+        question: questionCreated,
+        answers: listAnswers,
       }
-    } catch (error) {
-      throw new BadRequestException(error)
-    }
+    })
   }
 
-  async findOne(id: string) {
-    try {
-      const question = await this.connection.manager
-        .createQueryBuilder(Question, 'question')
-        .where('question.id = :id', { id: id })
-        .getOne()
-
-      const answers = await this.connection.manager
-        .createQueryBuilder(Answer, 'answer')
-        .where('answer.questionId = :id', { id: id })
-        .getMany()
-
-      const category = await this.connection.manager
-        .createQueryBuilder(QuestionCategory, 'question_category')
-        .select('question_category.title')
-        .where('question_category.id = :id', { id: question.questionCategoryId })
-        .getOne()
-
-      return {
-        category: category.title,
-        question: {
-          description: question.description,
-          id: question.id,
-        },
-        answers,
-      }
-    } catch (error) {
-      throw new BadRequestException(error)
-    }
+  async findQuestionById(id: string): Promise<Question> {
+    return this.connection.manager.findOneOrFail(Question, {
+      where: { id: id },
+      relations: ['questionCategory', 'answers'],
+    })
   }
 
-  async update(questionId: string, updateQuestionDto: UpdateQuestionDto) {
+  async update(questionId: string, updateQuestionDto: UpdateQuestionDto): Promise<Question> {
     return this.connection.transaction(async (manager) => {
       const questionExisting = await manager.findOne(Question, { where: { id: questionId }, relations: ['answers'] })
 
@@ -112,14 +75,18 @@ export class QuestionService {
 
         await Promise.all(arrPromises)
       }
+
+      return questionExisting
     })
   }
 
-  async remove(id: string) {
-    try {
-      return await this.connection.manager.delete(Question, id)
-    } catch (error) {
-      throw new BadRequestException(error)
+  async remove(id: string): Promise<any> {
+    const existingQuestion = this.connection.manager.findOne(Question, { where: { id: id } })
+    if (existingQuestion) {
+      await this.connection.manager.delete(Question, id)
+      return 'delete question successful'
+    } else {
+      throw new BadRequestException('Not found question')
     }
   }
 
