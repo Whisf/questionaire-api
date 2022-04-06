@@ -81,7 +81,7 @@ export class QuestionService {
 
   async update(questionId: string, updateQuestionDto: UpdateQuestionDto) {
     return this.connection.transaction(async (manager) => {
-      const questionExisting = await manager.findOne(Question, { where: { questionId }, relations: ['answers'] })
+      const questionExisting = await manager.findOne(Question, { where: { id: questionId }, relations: ['answers'] })
 
       if (!questionExisting) {
         throw new BadRequestException('Question not found')
@@ -90,7 +90,7 @@ export class QuestionService {
       const { description, answers } = updateQuestionDto
 
       if (description) {
-        await manager.save(Question, { description } as Question)
+        await manager.save(Question, { id: questionId, description } as Question)
       }
 
       const currentAnswerIds = questionExisting.answers.map((answers) => answers.id)

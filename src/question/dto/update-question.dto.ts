@@ -1,4 +1,4 @@
-import { IsArray, IsNotEmpty, IsOptional, IsString, IsUUID, ValidateNested } from 'class-validator'
+import { IsArray, IsBoolean, IsNotEmpty, IsOptional, IsString, IsUUID, ValidateNested } from 'class-validator'
 import { Type } from 'class-transformer'
 export class UpdateQuestionDto {
   @IsString()
@@ -21,7 +21,7 @@ class UpdateAnswerDto {
   @IsOptional()
   public description: string
 
-  @IsString()
+  @IsBoolean()
   @IsOptional()
   public isTrue: boolean
 }
