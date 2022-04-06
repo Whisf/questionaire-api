@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import { Answer, Question, QuestionCategory, User, UserQuestionAnswer } from 'src/entities'
 import { Connection } from 'typeorm'
 import { AnswerDto } from './dtos'
@@ -42,13 +42,21 @@ export class AnswerService {
       const arrPromises = answers.map(async (data) => {
         const { questionId, answerId } = data
 
-        const question = await manager.findOneOrFail(Question, {
+        const question = await manager.findOne(Question, {
           where: { id: questionId, questionCategory: { id: categoryId } },
         })
 
-        const answer = await manager.findOneOrFail(Answer, {
+        if (!question) {
+          throw new BadRequestException('Question not found')
+        }
+
+        const answer = await manager.findOne(Answer, {
           where: { id: answerId, question: { id: questionId } },
         })
+
+        if (!answer) {
+          throw new BadRequestException('Question not found')
+        }
 
         const questionAnswerExisting = await manager.findOne(UserQuestionAnswer, {
           where: { user: { id: user.id }, question },
