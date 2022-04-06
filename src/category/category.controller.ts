@@ -1,15 +1,15 @@
 import { Controller, Get, Query } from '@nestjs/common'
 import { CategoryService } from './category.service'
 
-@Controller('category')
+@Controller('categories')
 export class CategoryController {
   constructor(private categoryService: CategoryService) {}
-  @Get('/category')
+  @Get('/search')
   findByCategory(@Query('title') title: string) {
     return this.categoryService.getCategory(title)
   }
 
-  @Get('/categories')
+  @Get('')
   getAllCategory() {
     return this.categoryService.getAllCategories()
   }
