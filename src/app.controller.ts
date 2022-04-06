@@ -8,7 +8,7 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  getUserState(@Req() req: Request): Promise<User | undefined> {
+  getUserState(@Req() req: Request): Promise<User | string> {
     return this.appService.getUserState(req)
   }
 
