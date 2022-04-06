@@ -7,7 +7,7 @@ import { User, USER_ROLE } from 'src/entities'
 export class SaveUserMiddleware implements NestMiddleware {
   constructor(private connection: Connection) {}
 
-  async saveUserIfAuthenticated(req: Request): Promise<void> {
+  async saveUserIfAuthenticated(req: Request): Promise<User> {
     const { sub: authzUserId, email } = req.oidc.user
     const { access_token } = req.oidc.accessToken
 
@@ -18,7 +18,7 @@ export class SaveUserMiddleware implements NestMiddleware {
 
     return this.connection.transaction(async (manager) => {
       const existingUser = await manager.findOne(User, { email })
-      await manager.save(User, {
+      return manager.save(User, {
         id: existingUser?.id,
         authzUserId,
         email,
@@ -29,10 +29,12 @@ export class SaveUserMiddleware implements NestMiddleware {
   }
 
   async use(req: Request, _res: Response, next: NextFunction) {
+    let user = new User()
     if (!!req.oidc.accessToken) {
-      await this.saveUserIfAuthenticated(req)
+      user = await this.saveUserIfAuthenticated(req)
     }
 
+    req.user = user
     next()
   }
 }

@@ -1,25 +1,20 @@
 import { Controller, Get, Req } from '@nestjs/common'
 import { Request } from 'express'
-import { requiresAuth } from 'express-openid-connect'
 import { AppService } from './app.service'
+import { User } from './entities'
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  getUserState(@Req() req: Request): Promise<string> {
+  getUserState(@Req() req: Request): Promise<User | undefined> {
     return this.appService.getUserState(req)
   }
 
   @Get('access-token')
   async test(@Req() req: Request) {
     return req.oidc?.accessToken?.access_token || ''
-  }
-
-  @Get('admin')
-  getAdmin() {
-    return '<a href="/admin">Admin Section</a>'
   }
 
   @Get('profile')
