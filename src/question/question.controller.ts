@@ -21,8 +21,8 @@ export class QuestionController {
   }
 
   @Patch('/:id')
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateQuestionDto: UpdateQuestionDto) {
-    return this.questionService.update(id, updateQuestionDto)
+  update(@Param('id', ParseUUIDPipe) questionId: string, @Body() updateQuestionDto: UpdateQuestionDto) {
+    return this.questionService.update(questionId, updateQuestionDto)
   }
 
   @Delete('/:id')
