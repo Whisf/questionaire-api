@@ -55,14 +55,10 @@ export class QuestionService {
         .where('question.id = :id', { id: id })
         .getOne()
 
-      const answer = await this.connection.manager
+      const answers = await this.connection.manager
         .createQueryBuilder(Answer, 'answer')
         .where('answer.questionId = :id', { id: id })
         .getMany()
-
-      const listAnswers = answer.map((e) => {
-        return e
-      })
 
       const category = await this.connection.manager
         .createQueryBuilder(QuestionCategory, 'question_category')
@@ -72,8 +68,11 @@ export class QuestionService {
 
       return {
         category: category.title,
-        question: question.description,
-        answers: listAnswers,
+        question: {
+          description: question.description,
+          id: question.id,
+        },
+        answers,
       }
     } catch (error) {
       throw new BadRequestException(error)
