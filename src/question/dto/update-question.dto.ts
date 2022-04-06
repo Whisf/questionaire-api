@@ -1,16 +1,27 @@
-import { IsArray, IsOptional, IsString } from 'class-validator'
-import { Answer } from 'src/entities/answer.entity'
-
+import { IsArray, IsNotEmpty, IsOptional, IsString, IsUUID, ValidateNested } from 'class-validator'
+import { Type } from 'class-transformer'
 export class UpdateQuestionDto {
   @IsString()
   @IsOptional()
   description?: string
 
-  @IsString()
-  @IsOptional()
-  category?: string
-
   @IsArray()
   @IsOptional()
-  answers?: Answer[]
+  @ValidateNested()
+  @Type(() => UpdateAnswerDto)
+  answers?: UpdateAnswerDto[]
+}
+
+class UpdateAnswerDto {
+  @IsOptional()
+  @IsUUID()
+  public id: string
+
+  @IsString()
+  @IsOptional()
+  public description: string
+
+  @IsString()
+  @IsOptional()
+  public isTrue: boolean
 }

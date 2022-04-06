@@ -55,7 +55,7 @@ export class AnswerService {
         })
 
         if (!answer) {
-          throw new BadRequestException('Question not found')
+          throw new BadRequestException('Answer not found')
         }
 
         const questionAnswerExisting = await manager.findOne(UserQuestionAnswer, {

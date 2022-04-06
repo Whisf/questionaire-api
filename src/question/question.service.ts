@@ -79,55 +79,40 @@ export class QuestionService {
     }
   }
 
-  async update(id: string, updateQuestionDto: UpdateQuestionDto) {
-    const question = await this.connection.manager.createQueryBuilder(Question, 'question').where({ id: id }).getOne()
+  async update(questionId: string, updateQuestionDto: UpdateQuestionDto) {
+    return this.connection.transaction(async (manager) => {
+      const questionExisting = await manager.findOne(Question, { where: { questionId }, relations: ['answers'] })
 
-    if (updateQuestionDto.answers) {
-      await this.connection.manager
-        .createQueryBuilder(Answer, 'answer')
-        .delete()
-        .where('questionId = :id', { id: id })
-        .execute()
-
-      const test = updateQuestionDto.answers.map(async (ans) => {
-        return this.connection.manager.save(Answer, {
-          description: ans.description,
-          isTrue: ans.isTrue,
-          question: question,
-        })
-      })
-
-      const data = await Promise.all(test)
-      return {
-        question: question,
-        answers: data.map((e) => {
-          const { question, ...returndata } = e
-          return returndata
-        }),
+      if (!questionExisting) {
+        throw new BadRequestException('Question not found')
       }
-    }
 
-    let category = await this.connection.manager
-      .createQueryBuilder(QuestionCategory, 'question_category')
-      .where('question_category.title = :title', { title: updateQuestionDto.category })
-      .getOne()
+      const { description, answers } = updateQuestionDto
 
-    if (!category) {
-      category = await this.connection.manager.save(QuestionCategory, {
-        title: updateQuestionDto.category,
-      })
-    }
+      if (description) {
+        await manager.save(Question, { description } as Question)
+      }
 
-    try {
-      return await this.connection.manager
-        .createQueryBuilder()
-        .update(Question)
-        .set({ description: updateQuestionDto.description || question.description, questionCategory: category })
-        .where('id = :id', { id: id })
-        .execute()
-    } catch (error) {
-      throw new BadRequestException(error)
-    }
+      const currentAnswerIds = questionExisting.answers.map((answers) => answers.id)
+
+      if (answers && answers.length !== 0) {
+        const arrPromises = answers.map(async (answer) => {
+          const { id: answerId } = answer
+
+          if (!answerId) {
+            await manager.save(Answer, { ...answer, question: { id: questionExisting.id } } as Answer)
+          }
+
+          if (!currentAnswerIds.includes(answerId)) {
+            return
+          }
+
+          await manager.save(Answer, { ...answer })
+        })
+
+        await Promise.all(arrPromises)
+      }
+    })
   }
 
   async remove(id: string) {
