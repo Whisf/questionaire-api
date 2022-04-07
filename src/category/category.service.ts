@@ -18,7 +18,7 @@ export class CategoryService {
   }
 
   async getCategory(title: string): Promise<QuestionCategory> {
-    const category = await this.connection.manager.findOneOrFail(QuestionCategory, {
+    const category = await this.connection.manager.findOne(QuestionCategory, {
       relations: ['questions'],
       where: { title: title },
     })
@@ -35,7 +35,7 @@ export class CategoryService {
   }
 
   async findCategoryById(id: string): Promise<QuestionCategory> {
-    const category = await this.connection.manager.findOneOrFail(QuestionCategory, { id: id })
+    const category = await this.connection.manager.findOne(QuestionCategory, { id: id })
     if (!category) {
       throw new BadRequestException(`Not found category`)
     }
@@ -55,14 +55,12 @@ export class CategoryService {
   }
 
   async deleteCategory(categoryId: string): Promise<any> {
-    const categoryExisting = await this.connection.manager.findOneOrFail(QuestionCategory, { id: categoryId })
+    const categoryExisting = await this.connection.manager.findOne(QuestionCategory, { id: categoryId })
 
     if (!categoryExisting) {
       throw new BadRequestException(`Not found category`)
     }
 
     return this.connection.manager.delete(QuestionCategory, { id: categoryId })
-      ? 'Category deleted'
-      : 'Cannot delete category'
   }
 }
