@@ -12,7 +12,7 @@ import { AuthzMiddleware, SaveUserMiddleware } from './middleware'
 
 import { auth } from 'express-oauth2-jwt-bearer'
 import { AnswerModule } from './answer'
-import { CategoryModule } from './category/category.module';
+import { CategoryModule } from './category/category.module'
 
 @Module({
   imports: [
@@ -38,7 +38,7 @@ export class AppModule implements NestModule {
       jwksUri: `${process.env.AUTHZ_ISSUER_URL}/.well-known/jwks.json`,
     }
     consumer.apply(AuthzMiddleware).forRoutes('/login')
-    consumer.apply(SaveUserMiddleware).forRoutes('/')
+    consumer.apply(SaveUserMiddleware).forRoutes('/user/me', '/login')
     consumer.apply(auth(config)).exclude('/', '/login', '/logout', '/access-token', '/profile').forRoutes('*')
   }
 }
