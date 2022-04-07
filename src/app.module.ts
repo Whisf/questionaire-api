@@ -38,7 +38,7 @@ export class AppModule implements NestModule {
       jwksUri: `${process.env.AUTHZ_ISSUER_URL}/.well-known/jwks.json`,
     }
     consumer.apply(AuthzMiddleware).forRoutes('/login')
-    consumer.apply(SaveUserMiddleware).forRoutes('/user/me')
+    consumer.apply(SaveUserMiddleware).forRoutes('/user/me', '/login')
     consumer.apply(auth(config)).exclude('/', '/login', '/logout', '/access-token', '/profile').forRoutes('*')
   }
 }
