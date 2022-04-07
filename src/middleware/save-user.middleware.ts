@@ -12,6 +12,8 @@ export class SaveUserMiddleware implements NestMiddleware {
     const { access_token } = req.oidc.accessToken
 
     const userData = JSON.parse(Buffer.from(access_token.split('.')[1], 'base64').toString('binary'))
+    console.log(userData)
+
     const { permissions } = userData as { sub: string; permissions: string[] }
 
     const isAdmin = permissions.includes('create:question')
