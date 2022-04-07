@@ -16,6 +16,8 @@ export class SaveUserMiddleware implements NestMiddleware {
 
     const isAdmin = permissions.includes('create:question')
 
+    console.log(isAdmin)
+
     return this.connection.transaction(async (manager) => {
       const existingUser = await manager.findOne(User, { email })
       return manager.save(User, {
