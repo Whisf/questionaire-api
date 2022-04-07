@@ -1,5 +1,5 @@
-import { Controller, Get, Req } from '@nestjs/common'
-import { Request } from 'express'
+import { Controller, Get, Req, Res } from '@nestjs/common'
+import { Request, Response } from 'express'
 import { AppService } from './app.service'
 import { User } from './entities'
 
@@ -8,7 +8,7 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  getUserState(@Req() req: Request): Promise<User | string> {
+  async getUserState(@Req() req: Request): Promise<string> {
     return this.appService.getUserState(req)
   }
 
