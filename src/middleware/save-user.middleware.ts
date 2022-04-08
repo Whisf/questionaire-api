@@ -12,6 +12,8 @@ export class SaveUserMiddleware implements NestMiddleware {
     // const access_token = req.oidc?.accessToken?.access_token
     const bearer_token = req.headers['authorization']
 
+    console.log('bearer_token', bearer_token)
+
     const userData = JSON.parse(Buffer.from(bearer_token.split('.')[1], 'base64').toString('binary'))
 
     const { permissions } = userData as { sub: string; permissions: string[] }
