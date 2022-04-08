@@ -9,7 +9,7 @@ export class SaveUserMiddleware implements NestMiddleware {
 
   async saveUserIfAuthenticated(req: Request): Promise<User> {
     const { sub: authzUserId, email } = req.oidc.user
-    const { access_token } = req.oidc.accessToken
+    const { access_token } = req.oidc?.accessToken
     const bearer_token = req.headers['authorization']
 
     const userData = JSON.parse(Buffer.from((access_token || bearer_token).split('.')[1], 'base64').toString('binary'))
