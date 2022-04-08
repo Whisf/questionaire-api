@@ -6,7 +6,6 @@ import { UserModule } from './user'
 import { AuthModule } from './auth'
 import { QuestionModule } from './question'
 import { AppController } from './app.controller'
-import { AppService } from './app.service'
 import { Question, User } from './entities'
 
 import { auth } from 'express-oauth2-jwt-bearer'
@@ -26,7 +25,7 @@ import { CategoryModule } from './category/category.module'
     CategoryModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
@@ -37,6 +36,6 @@ export class AppModule implements NestModule {
       jwksUri: `${process.env.AUTHZ_ISSUER_URL}/.well-known/jwks.json`,
     }
 
-    consumer.apply(auth(config)).exclude('/', '/access-token', '/profile').forRoutes('*')
+    consumer.apply(auth(config)).exclude('/').forRoutes('*')
   }
 }

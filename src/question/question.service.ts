@@ -11,10 +11,10 @@ export class QuestionService {
   async createQuestion(createQuestionDto: CreateQuestionDto): Promise<any> {
     return this.connection.transaction(async (manager) => {
       const { question, category, answers } = createQuestionDto
-      const categoryExisting = await manager.findOne(QuestionCategory, { where: { title: category } })
+      let categoryExisting = await manager.findOne(QuestionCategory, { where: { title: category } })
 
       if (!categoryExisting) {
-        throw new BadRequestException(`Not found ${category} category`)
+        categoryExisting = await manager.save(QuestionCategory, { title: category })
       }
 
       const questionCreated = await manager.save(Question, {
