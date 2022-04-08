@@ -37,7 +37,7 @@ async function bootstrap() {
   app.enableCors()
   app.useGlobalPipes(new ValidationPipe())
 
-  app.use(auth(config))
+  // app.use(auth(config))
 
   app.use(morgan('combined'))
 
