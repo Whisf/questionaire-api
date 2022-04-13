@@ -19,12 +19,18 @@ export class CategoryService {
 
   async getCategory(title: string): Promise<QuestionCategory> {
     const category = await this.connection.manager.findOne(QuestionCategory, {
-      relations: ['questions'],
+      relations: ['questions', 'questions.answers'],
       where: { title: title },
     })
 
     if (!category) {
       throw new BadRequestException(`Not found ${title} category`)
+    }
+
+    for (const question of category.questions) {
+      for (const answer of question.answers) {
+        delete answer.isTrue
+      }
     }
 
     return category
